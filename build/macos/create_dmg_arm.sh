@@ -1,9 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+cd "$REPO_ROOT"
 mkdir dmg && cp -r EasyLPAC.app dmg/
 mkdir dmg/Sources && cp -r lpac-*.zip LICENSE* dmg/Sources
 ln -s /Applications dmg/Applications
 hdiutil create -volname "EasyLPAC" -srcfolder dmg -ov -format UDRW EasyLPAC.dmg
 hdiutil attach EasyLPAC.dmg
-cp ../assets/icon.icns /Volumes/EasyLPAC/.VolumeIcon.icns
+cp assets/icon.icns /Volumes/EasyLPAC/.VolumeIcon.icns
 SetFile -c icnC /Volumes/EasyLPAC/.VolumeIcon.icns
 SetFile -a C /Volumes/EasyLPAC
 

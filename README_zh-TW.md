@@ -1,5 +1,5 @@
 # EasyLPAC
-**語言:** [英文](./README.md) [日文](./README_ja-JP.md)
+**語言:** [英文](./README.md) | [简体中文](./README_zh-CN.md) | [日文](./README_ja-JP.md)
 
 [lpac](https://github.com/estkme-group/lpac) 圖形化前端
 

@@ -1,5 +1,5 @@
 # EasyLPAC
-**Language:** [日本語](./README_ja-JP.md) | [正體中文](./README_zh-TW.md)
+**Language:** [简体中文](./README_zh-CN.md) | [正體中文](./README_zh-TW.md) | [日本語](./README_ja-JP.md)
 
 [lpac](https://github.com/estkme-group/lpac) GUI Frontend
 
