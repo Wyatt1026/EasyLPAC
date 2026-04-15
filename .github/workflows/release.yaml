@@ -125,7 +125,7 @@ jobs:
           BUILD=$(grep 'Build' FyneApp.toml | sed 's/Build = \(.*\)/\1/' | xargs)
           go install fyne.io/tools/cmd/fyne@latest
           cd cmd/easylpac
-          fyne package --executable EasyLPAC.exe --icon "$GITHUB_WORKSPACE/assets/icon64.png" --name EasyLPAC --appID github.creamlike1024.EasyLPAC --appVersion "$VERSION" --appBuild "$BUILD"
+          fyne package --executable EasyLPAC.exe --icon "$GITHUB_WORKSPACE/assets/icon64.png" --name EasyLPAC --app-id github.creamlike1024.EasyLPAC --app-version "$VERSION" --app-build "$BUILD"
           cd ../..
           mkdir easylpac && cp cmd/easylpac/EasyLPAC.exe easylpac && cd easylpac
           wget $LPAC_REPO/releases/download/$LPAC_VERSION_IN_URL/lpac-windows-x86_64-mingw.zip -O lpac.zip
@@ -144,7 +144,7 @@ jobs:
           BUILD=$(grep 'Build' FyneApp.toml | sed 's/Build = \(.*\)/\1/' | xargs)
           go install fyne.io/tools/cmd/fyne@latest
           go build -ldflags="-s -w" -o EasyLPAC ./cmd/easylpac
-          fyne package --executable EasyLPAC --icon assets/icon128.png --name EasyLPAC --appID github.creamlike1024.EasyLPAC --appVersion "$VERSION" --appBuild "$BUILD" --release
+          fyne package --executable EasyLPAC --icon assets/icon128.png --name EasyLPAC --app-id github.creamlike1024.EasyLPAC --app-version "$VERSION" --app-build "$BUILD" --release
           cd EasyLPAC.app/Contents/MacOS
           wget $LPAC_REPO/releases/download/$LPAC_VERSION_IN_URL/lpac-darwin-universal.zip -O lpac.zip
           unzip lpac.zip && rm lpac.zip
@@ -161,7 +161,7 @@ jobs:
           BUILD=$(grep 'Build' FyneApp.toml | sed 's/Build = \(.*\)/\1/' | xargs)
           go install fyne.io/tools/cmd/fyne@latest
           go build -ldflags="-s -w" -o EasyLPAC ./cmd/easylpac
-          fyne package --executable EasyLPAC --icon assets/icon128.png --name EasyLPAC --appID github.creamlike1024.EasyLPAC --appVersion "$VERSION" --appBuild "$BUILD" --release
+          fyne package --executable EasyLPAC --icon assets/icon128.png --name EasyLPAC --app-id github.creamlike1024.EasyLPAC --app-version "$VERSION" --app-build "$BUILD" --release
           cd EasyLPAC.app/Contents/MacOS
           wget $LPAC_REPO/releases/download/$LPAC_VERSION_IN_URL/lpac-darwin-universal.zip -O lpac.zip
           unzip lpac.zip && rm lpac.zip
