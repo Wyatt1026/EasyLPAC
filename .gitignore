@@ -1,12 +1,13 @@
 .DS_Store
 **/.DS_Store
 
-.idea/
-lpac/
-log/
-static/
+/.idea/
+/lpac/
+/log/
+/static/
+/.cache/
 
-EasyLPAC
-EasyLPAC.exe
-EasyLPAC.app/
-__debug_bin*
+/EasyLPAC
+/EasyLPAC.exe
+/EasyLPAC.app/
+/__debug_bin*
