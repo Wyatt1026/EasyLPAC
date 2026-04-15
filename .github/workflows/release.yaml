@@ -11,7 +11,52 @@ permissions:
   contents: write
 
 jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.release-meta.outputs.release_tag }}
+      release_name: ${{ steps.release-meta.outputs.release_name }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: release-meta
+        shell: bash
+        run: |
+          VERSION=$(grep 'Version' FyneApp.toml | sed 's/Version = "\(.*\)"/\1/' | xargs)
+          BUILD=$(grep 'Build' FyneApp.toml | sed 's/Build = \(.*\)/\1/' | xargs)
+
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            RELEASE_TAG="${GITHUB_REF_NAME}"
+          else
+            RELEASE_TAG="v${VERSION}.${BUILD}.${GITHUB_RUN_NUMBER}"
+          fi
+
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "release_name=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push release tag
+        if: github.ref_type != 'tag'
+        env:
+          RELEASE_TAG: ${{ steps.release-meta.outputs.release_tag }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | grep -q .; then
+            echo "Release tag ${RELEASE_TAG} already exists on origin"
+            exit 0
+          fi
+
+          git tag -a "${RELEASE_TAG}" -m "Release ${RELEASE_TAG}"
+          git push origin "refs/tags/${RELEASE_TAG}"
+
   build:
+    needs: prepare-release
     strategy:
       matrix:
         include:
@@ -29,6 +74,7 @@ jobs:
       LPAC_VERSION: v2.2.1
       LPAC_VERSION_IN_URL: v2.2.1
       LPAC_REPO: https://github.com/estkme-group/lpac
+      RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -64,7 +110,6 @@ jobs:
       - name: Build for Linux
         if: runner.os == 'Linux'
         run: |
-          go install fyne.io/fyne/v2/cmd/fyne@latest
           go build -ldflags="-s -w" -o EasyLPAC ./cmd/easylpac
           wget $LPAC_REPO/releases/download/$LPAC_VERSION_IN_URL/lpac-linux-x86_64.zip -O lpac.zip
           unzip lpac.zip && rm lpac.zip
@@ -78,17 +123,18 @@ jobs:
         run: |
           VERSION=$(grep 'Version' FyneApp.toml | sed 's/Version = "\(.*\)"/\1/' | xargs)
           BUILD=$(grep 'Build' FyneApp.toml | sed 's/Build = \(.*\)/\1/' | xargs)
-          go install fyne.io/fyne/v2/cmd/fyne@latest
-          go build -ldflags="-s -w" -o EasyLPAC.exe ./cmd/easylpac
-          fyne package --executable EasyLPAC.exe --icon assets/icon64.png --name EasyLPAC --appID github.creamlike1024.EasyLPAC --appVersion "$VERSION" --appBuild "$BUILD"
-          mkdir easylpac && cp EasyLPAC.exe easylpac && cd easylpac
+          go install fyne.io/tools/cmd/fyne@latest
+          cd cmd/easylpac
+          fyne package --executable EasyLPAC.exe --icon "$GITHUB_WORKSPACE/assets/icon64.png" --name EasyLPAC --appID github.creamlike1024.EasyLPAC --appVersion "$VERSION" --appBuild "$BUILD"
+          cd ../..
+          mkdir easylpac && cp cmd/easylpac/EasyLPAC.exe easylpac && cd easylpac
           wget $LPAC_REPO/releases/download/$LPAC_VERSION_IN_URL/lpac-windows-x86_64-mingw.zip -O lpac.zip
           unzip lpac.zip && rm lpac.zip
           rm LICENSE* *.md
           wget $LPAC_REPO/archive/refs/tags/$LPAC_VERSION_IN_URL.zip -O lpac-$LPAC_VERSION-src.zip
           wget $LPAC_REPO/raw/main/src/LICENSE -O LICENSE-lpac
-          cp $GITHUB_WORKSPACE/LICENSE ./
-          zip -r $GITHUB_WORKSPACE/EasyLPAC-windows-x86_64-with-lpac.zip ./*
+          cp ../LICENSE ./
+          zip -r ../EasyLPAC-windows-x86_64-with-lpac.zip ./*
         shell: msys2 {0}
 
       - name: Build for macOS ARM
@@ -96,7 +142,7 @@ jobs:
         run: |
           VERSION=$(grep 'Version' FyneApp.toml | sed 's/Version = "\(.*\)"/\1/' | xargs)
           BUILD=$(grep 'Build' FyneApp.toml | sed 's/Build = \(.*\)/\1/' | xargs)
-          go install fyne.io/fyne/v2/cmd/fyne@latest
+          go install fyne.io/tools/cmd/fyne@latest
           go build -ldflags="-s -w" -o EasyLPAC ./cmd/easylpac
           fyne package --executable EasyLPAC --icon assets/icon128.png --name EasyLPAC --appID github.creamlike1024.EasyLPAC --appVersion "$VERSION" --appBuild "$BUILD" --release
           cd EasyLPAC.app/Contents/MacOS
@@ -113,7 +159,7 @@ jobs:
         run: |
           VERSION=$(grep 'Version' FyneApp.toml | sed 's/Version = "\(.*\)"/\1/' | xargs)
           BUILD=$(grep 'Build' FyneApp.toml | sed 's/Build = \(.*\)/\1/' | xargs)
-          go install fyne.io/fyne/v2/cmd/fyne@latest
+          go install fyne.io/tools/cmd/fyne@latest
           go build -ldflags="-s -w" -o EasyLPAC ./cmd/easylpac
           fyne package --executable EasyLPAC --icon assets/icon128.png --name EasyLPAC --appID github.creamlike1024.EasyLPAC --appVersion "$VERSION" --appBuild "$BUILD" --release
           cd EasyLPAC.app/Contents/MacOS
@@ -138,8 +184,10 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ needs.prepare-release.outputs.release_name }}
+          generate_release_notes: true
           files: |
             EasyLPAC-windows-x86_64-with-lpac.zip
             EasyLPAC-macOS-arm64-with-lpac.zip

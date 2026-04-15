@@ -21,6 +21,12 @@ var notoSansJP []byte
 //go:embed fonts/NotoSansJP-Bold.ttf
 var notoSansJPBold []byte
 
+//go:embed fonts/NotoSansSC-Regular.otf
+var notoSansSC []byte
+
+//go:embed fonts/NotoSansSC-Bold.otf
+var notoSansSCBold []byte
+
 //go:embed fonts/NotoSansTC.ttf
 var notoSansTC []byte
 
@@ -50,6 +56,16 @@ var NotoSansJP = &fyne.StaticResource{
 var NotoSansJPBold = &fyne.StaticResource{
 	StaticName:    "NotoSansJP-Bold.ttf",
 	StaticContent: notoSansJPBold,
+}
+
+var NotoSansSC = &fyne.StaticResource{
+	StaticName:    "NotoSansSC-Regular.otf",
+	StaticContent: notoSansSC,
+}
+
+var NotoSansSCBold = &fyne.StaticResource{
+	StaticName:    "NotoSansSC-Bold.otf",
+	StaticContent: notoSansSCBold,
 }
 
 var NotoSansTC = &fyne.StaticResource{

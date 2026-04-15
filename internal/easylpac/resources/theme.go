@@ -42,7 +42,9 @@ func (t AppTheme) Font(s fyne.TextStyle) fyne.Resource {
 		switch t.languageTag {
 		case appi18n.LanguageJapanese:
 			return NotoSansJPBold
-		case appi18n.LanguageSimplifiedZH, appi18n.LanguageTraditionalZH:
+		case appi18n.LanguageSimplifiedZH:
+			return NotoSansSCBold
+		case appi18n.LanguageTraditionalZH:
 			return NotoSansTCBold
 		default:
 			return DroidSansBold
@@ -51,7 +53,9 @@ func (t AppTheme) Font(s fyne.TextStyle) fyne.Resource {
 	switch t.languageTag {
 	case appi18n.LanguageJapanese:
 		return NotoSansJP
-	case appi18n.LanguageSimplifiedZH, appi18n.LanguageTraditionalZH:
+	case appi18n.LanguageSimplifiedZH:
+		return NotoSansSC
+	case appi18n.LanguageTraditionalZH:
 		return NotoSansTC
 	default:
 		return DroidSansFallback
